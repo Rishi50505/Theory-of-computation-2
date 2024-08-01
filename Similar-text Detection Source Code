@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+void to_lowercase(char *str) {
+    for (int i = 0; str[i]; i++) {
+        str[i] = tolower(str[i]);
+    }
+}
+
+void remove_punctuation(char *str) {
+    int i, j;
+    for (i = 0, j = 0; str[i]; i++) {
+        if (!ispunct((unsigned char)str[i])) {
+            str[j++] = str[i];
+        }
+    }
+    str[j] = '\0';
+}
+
+typedef struct {
+    char word[50];
+    int count;
+} WordCount;
+
+int find_word(WordCount *list, int size, char *word) {
+    for (int i = 0; i < size; i++) {
+        if (strcmp(list[i].word, word) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void count_words(char *paragraph) {
+    WordCount word_counts[1000];
+    int word_count_size = 0;
+
+    char *token = strtok(paragraph, " ");
+    while (token != NULL) {
+        to_lowercase(token);
+        remove_punctuation(token);
+
+        int index = find_word(word_counts, word_count_size, token);
+        if (index != -1) {
+            word_counts[index].count++;
+        } else {
+            strcpy(word_counts[word_count_size].word, token);
+            word_counts[word_count_size].count = 1;
+            word_count_size++;
+        }
+        token = strtok(NULL, " ");
+    }
+
+    printf("Word Counts:\n");
+    for (int i = 0; i < word_count_size; i++) {
+        printf("%s: %d\n", word_counts[i].word, word_counts[i].count);
+    }
+}
+
+int main() {
+    char paragraph[1000];
+    
+    printf("Enter a paragraph: ");
+    fgets(paragraph, sizeof(paragraph), stdin);
+    
+    size_t length = strlen(paragraph);
+    if (length > 0 && paragraph[length - 1] == '\n') {
+        paragraph[length - 1] = '\0';
+    }
+
+    count_words(paragraph);
+
+    return 0;
+}
